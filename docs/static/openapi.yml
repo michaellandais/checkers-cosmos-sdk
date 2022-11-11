@@ -44345,6 +44345,8 @@ paths:
       tags:
         - Query
 definitions:
+  checkers.checkers.MsgCreatePostResponse:
+    type: object
   checkers.checkers.Params:
     type: object
     description: Params defines the parameters for the module.
