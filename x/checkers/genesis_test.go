@@ -7,6 +7,7 @@ import (
 	"checkers/testutil/nullify"
 	"checkers/x/checkers"
 	"checkers/x/checkers/types"
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -14,7 +15,7 @@ func TestGenesis(t *testing.T) {
 	genesisState := types.GenesisState{
 		Params: types.DefaultParams(),
 
-		SystemInfo: &types.SystemInfo{
+		SystemInfo: types.SystemInfo{
 			NextId: 45,
 		},
 		StoredGameList: []types.StoredGame{
