@@ -223,19 +223,6 @@ export default {
 		},
 		
 		
-		async sendMsgCreatePost({ rootGetters }, { value, fee = [], memo = '' }) {
-			try {
-				const client=await initClient(rootGetters)
-				const result = await client.CheckersCheckers.tx.sendMsgCreatePost({ value, fee: {amount: fee, gas: "200000"}, memo })
-				return result
-			} catch (e) {
-				if (e == MissingWalletError) {
-					throw new Error('TxClient:MsgCreatePost:Init Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new Error('TxClient:MsgCreatePost:Send Could not broadcast Tx: '+ e.message)
-				}
-			}
-		},
 		async sendMsgCreateGame({ rootGetters }, { value, fee = [], memo = '' }) {
 			try {
 				const client=await initClient(rootGetters)
@@ -249,20 +236,20 @@ export default {
 				}
 			}
 		},
-		
-		async MsgCreatePost({ rootGetters }, { value }) {
+		async sendMsgCreatePost({ rootGetters }, { value, fee = [], memo = '' }) {
 			try {
-				const client=initClient(rootGetters)
-				const msg = await client.CheckersCheckers.tx.msgCreatePost({value})
-				return msg
+				const client=await initClient(rootGetters)
+				const result = await client.CheckersCheckers.tx.sendMsgCreatePost({ value, fee: {amount: fee, gas: "200000"}, memo })
+				return result
 			} catch (e) {
 				if (e == MissingWalletError) {
 					throw new Error('TxClient:MsgCreatePost:Init Could not initialize signing client. Wallet is required.')
-				} else{
-					throw new Error('TxClient:MsgCreatePost:Create Could not create message: ' + e.message)
+				}else{
+					throw new Error('TxClient:MsgCreatePost:Send Could not broadcast Tx: '+ e.message)
 				}
 			}
 		},
+		
 		async MsgCreateGame({ rootGetters }, { value }) {
 			try {
 				const client=initClient(rootGetters)
@@ -273,6 +260,19 @@ export default {
 					throw new Error('TxClient:MsgCreateGame:Init Could not initialize signing client. Wallet is required.')
 				} else{
 					throw new Error('TxClient:MsgCreateGame:Create Could not create message: ' + e.message)
+				}
+			}
+		},
+		async MsgCreatePost({ rootGetters }, { value }) {
+			try {
+				const client=initClient(rootGetters)
+				const msg = await client.CheckersCheckers.tx.msgCreatePost({value})
+				return msg
+			} catch (e) {
+				if (e == MissingWalletError) {
+					throw new Error('TxClient:MsgCreatePost:Init Could not initialize signing client. Wallet is required.')
+				} else{
+					throw new Error('TxClient:MsgCreatePost:Create Could not create message: ' + e.message)
 				}
 			}
 		},
