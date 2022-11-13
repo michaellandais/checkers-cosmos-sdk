@@ -44559,6 +44559,11 @@ paths:
       tags:
         - Query
 definitions:
+  checkers.checkers.MsgCreateGameResponse:
+    type: object
+    properties:
+      gameIndex:
+        type: string
   checkers.checkers.MsgCreatePostResponse:
     type: object
   checkers.checkers.Params:

@@ -8,9 +8,10 @@ import { IgniteClient } from "../client"
 import { MissingWalletError } from "../helpers"
 import { Api } from "./rest";
 import { MsgCreatePost } from "./types/checkers/checkers/tx";
+import { MsgCreateGame } from "./types/checkers/checkers/tx";
 
 
-export { MsgCreatePost };
+export { MsgCreatePost, MsgCreateGame };
 
 type sendMsgCreatePostParams = {
   value: MsgCreatePost,
@@ -18,9 +19,19 @@ type sendMsgCreatePostParams = {
   memo?: string
 };
 
+type sendMsgCreateGameParams = {
+  value: MsgCreateGame,
+  fee?: StdFee,
+  memo?: string
+};
+
 
 type msgCreatePostParams = {
   value: MsgCreatePost,
+};
+
+type msgCreateGameParams = {
+  value: MsgCreateGame,
 };
 
 
@@ -55,12 +66,34 @@ export const txClient = ({ signer, prefix, addr }: TxClientOptions = { addr: "ht
 			}
 		},
 		
+		async sendMsgCreateGame({ value, fee, memo }: sendMsgCreateGameParams): Promise<DeliverTxResponse> {
+			if (!signer) {
+					throw new Error('TxClient:sendMsgCreateGame: Unable to sign Tx. Signer is not present.')
+			}
+			try {			
+				const { address } = (await signer.getAccounts())[0]; 
+				const signingClient = await SigningStargateClient.connectWithSigner(addr,signer,{registry, prefix});
+				let msg = this.msgCreateGame({ value: MsgCreateGame.fromPartial(value) })
+				return await signingClient.signAndBroadcast(address, [msg], fee ? fee : defaultFee, memo)
+			} catch (e: any) {
+				throw new Error('TxClient:sendMsgCreateGame: Could not broadcast Tx: '+ e.message)
+			}
+		},
+		
 		
 		msgCreatePost({ value }: msgCreatePostParams): EncodeObject {
 			try {
 				return { typeUrl: "/checkers.checkers.MsgCreatePost", value: MsgCreatePost.fromPartial( value ) }  
 			} catch (e: any) {
 				throw new Error('TxClient:MsgCreatePost: Could not create message: ' + e.message)
+			}
+		},
+		
+		msgCreateGame({ value }: msgCreateGameParams): EncodeObject {
+			try {
+				return { typeUrl: "/checkers.checkers.MsgCreateGame", value: MsgCreateGame.fromPartial( value ) }  
+			} catch (e: any) {
+				throw new Error('TxClient:MsgCreateGame: Could not create message: ' + e.message)
 			}
 		},
 		
