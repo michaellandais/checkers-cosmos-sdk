@@ -7,15 +7,22 @@ import { msgTypes } from './registry';
 import { IgniteClient } from "../client"
 import { MissingWalletError } from "../helpers"
 import { Api } from "./rest";
-import { MsgPlayMove } from "./types/checkers/checkers/tx";
-import { MsgCreateGame } from "./types/checkers/checkers/tx";
 import { MsgCreatePost } from "./types/checkers/checkers/tx";
+import { MsgRejectGame } from "./types/checkers/checkers/tx";
+import { MsgCreateGame } from "./types/checkers/checkers/tx";
+import { MsgPlayMove } from "./types/checkers/checkers/tx";
 
 
-export { MsgPlayMove, MsgCreateGame, MsgCreatePost };
+export { MsgCreatePost, MsgRejectGame, MsgCreateGame, MsgPlayMove };
 
-type sendMsgPlayMoveParams = {
-  value: MsgPlayMove,
+type sendMsgCreatePostParams = {
+  value: MsgCreatePost,
+  fee?: StdFee,
+  memo?: string
+};
+
+type sendMsgRejectGameParams = {
+  value: MsgRejectGame,
   fee?: StdFee,
   memo?: string
 };
@@ -26,23 +33,27 @@ type sendMsgCreateGameParams = {
   memo?: string
 };
 
-type sendMsgCreatePostParams = {
-  value: MsgCreatePost,
+type sendMsgPlayMoveParams = {
+  value: MsgPlayMove,
   fee?: StdFee,
   memo?: string
 };
 
 
-type msgPlayMoveParams = {
-  value: MsgPlayMove,
+type msgCreatePostParams = {
+  value: MsgCreatePost,
+};
+
+type msgRejectGameParams = {
+  value: MsgRejectGame,
 };
 
 type msgCreateGameParams = {
   value: MsgCreateGame,
 };
 
-type msgCreatePostParams = {
-  value: MsgCreatePost,
+type msgPlayMoveParams = {
+  value: MsgPlayMove,
 };
 
 
@@ -63,17 +74,31 @@ export const txClient = ({ signer, prefix, addr }: TxClientOptions = { addr: "ht
 
   return {
 		
-		async sendMsgPlayMove({ value, fee, memo }: sendMsgPlayMoveParams): Promise<DeliverTxResponse> {
+		async sendMsgCreatePost({ value, fee, memo }: sendMsgCreatePostParams): Promise<DeliverTxResponse> {
 			if (!signer) {
-					throw new Error('TxClient:sendMsgPlayMove: Unable to sign Tx. Signer is not present.')
+					throw new Error('TxClient:sendMsgCreatePost: Unable to sign Tx. Signer is not present.')
 			}
 			try {			
 				const { address } = (await signer.getAccounts())[0]; 
 				const signingClient = await SigningStargateClient.connectWithSigner(addr,signer,{registry, prefix});
-				let msg = this.msgPlayMove({ value: MsgPlayMove.fromPartial(value) })
+				let msg = this.msgCreatePost({ value: MsgCreatePost.fromPartial(value) })
 				return await signingClient.signAndBroadcast(address, [msg], fee ? fee : defaultFee, memo)
 			} catch (e: any) {
-				throw new Error('TxClient:sendMsgPlayMove: Could not broadcast Tx: '+ e.message)
+				throw new Error('TxClient:sendMsgCreatePost: Could not broadcast Tx: '+ e.message)
+			}
+		},
+		
+		async sendMsgRejectGame({ value, fee, memo }: sendMsgRejectGameParams): Promise<DeliverTxResponse> {
+			if (!signer) {
+					throw new Error('TxClient:sendMsgRejectGame: Unable to sign Tx. Signer is not present.')
+			}
+			try {			
+				const { address } = (await signer.getAccounts())[0]; 
+				const signingClient = await SigningStargateClient.connectWithSigner(addr,signer,{registry, prefix});
+				let msg = this.msgRejectGame({ value: MsgRejectGame.fromPartial(value) })
+				return await signingClient.signAndBroadcast(address, [msg], fee ? fee : defaultFee, memo)
+			} catch (e: any) {
+				throw new Error('TxClient:sendMsgRejectGame: Could not broadcast Tx: '+ e.message)
 			}
 		},
 		
@@ -91,26 +116,34 @@ export const txClient = ({ signer, prefix, addr }: TxClientOptions = { addr: "ht
 			}
 		},
 		
-		async sendMsgCreatePost({ value, fee, memo }: sendMsgCreatePostParams): Promise<DeliverTxResponse> {
+		async sendMsgPlayMove({ value, fee, memo }: sendMsgPlayMoveParams): Promise<DeliverTxResponse> {
 			if (!signer) {
-					throw new Error('TxClient:sendMsgCreatePost: Unable to sign Tx. Signer is not present.')
+					throw new Error('TxClient:sendMsgPlayMove: Unable to sign Tx. Signer is not present.')
 			}
 			try {			
 				const { address } = (await signer.getAccounts())[0]; 
 				const signingClient = await SigningStargateClient.connectWithSigner(addr,signer,{registry, prefix});
-				let msg = this.msgCreatePost({ value: MsgCreatePost.fromPartial(value) })
+				let msg = this.msgPlayMove({ value: MsgPlayMove.fromPartial(value) })
 				return await signingClient.signAndBroadcast(address, [msg], fee ? fee : defaultFee, memo)
 			} catch (e: any) {
-				throw new Error('TxClient:sendMsgCreatePost: Could not broadcast Tx: '+ e.message)
+				throw new Error('TxClient:sendMsgPlayMove: Could not broadcast Tx: '+ e.message)
 			}
 		},
 		
 		
-		msgPlayMove({ value }: msgPlayMoveParams): EncodeObject {
+		msgCreatePost({ value }: msgCreatePostParams): EncodeObject {
 			try {
-				return { typeUrl: "/checkers.checkers.MsgPlayMove", value: MsgPlayMove.fromPartial( value ) }  
+				return { typeUrl: "/checkers.checkers.MsgCreatePost", value: MsgCreatePost.fromPartial( value ) }  
 			} catch (e: any) {
-				throw new Error('TxClient:MsgPlayMove: Could not create message: ' + e.message)
+				throw new Error('TxClient:MsgCreatePost: Could not create message: ' + e.message)
+			}
+		},
+		
+		msgRejectGame({ value }: msgRejectGameParams): EncodeObject {
+			try {
+				return { typeUrl: "/checkers.checkers.MsgRejectGame", value: MsgRejectGame.fromPartial( value ) }  
+			} catch (e: any) {
+				throw new Error('TxClient:MsgRejectGame: Could not create message: ' + e.message)
 			}
 		},
 		
@@ -122,11 +155,11 @@ export const txClient = ({ signer, prefix, addr }: TxClientOptions = { addr: "ht
 			}
 		},
 		
-		msgCreatePost({ value }: msgCreatePostParams): EncodeObject {
+		msgPlayMove({ value }: msgPlayMoveParams): EncodeObject {
 			try {
-				return { typeUrl: "/checkers.checkers.MsgCreatePost", value: MsgCreatePost.fromPartial( value ) }  
+				return { typeUrl: "/checkers.checkers.MsgPlayMove", value: MsgPlayMove.fromPartial( value ) }  
 			} catch (e: any) {
-				throw new Error('TxClient:MsgCreatePost: Could not create message: ' + e.message)
+				throw new Error('TxClient:MsgPlayMove: Could not create message: ' + e.message)
 			}
 		},
 		
